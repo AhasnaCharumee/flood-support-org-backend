@@ -39,8 +39,8 @@ app.use('/api/stats', statsRoutes)
 app.use('/api/analytics', analyticsRoutes)
 
 
-const PORT: string | number = process.env.PORT || 5000
-const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+const PORT = Number(process.env.PORT) || 5001;
+const server = app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {

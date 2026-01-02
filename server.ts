@@ -15,21 +15,23 @@ import { initScheduledTasks } from './utils/scheduler'
 dotenv.config()
 
 const app = express()
-// Restrict CORS to known frontends while allowing server-to-server calls without an origin
+// Restrict CORS to known frontends; if unset, allow all origins (useful for health checks/pings)
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map(origin => origin.trim())
   .filter(Boolean)
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-      return callback(null, true)
-    }
-    return callback(new Error('Not allowed by CORS'))
-  },
-  credentials: true
-}))
+const corsOptions: cors.CorsOptions = {
+  origin: allowedOrigins.length ? allowedOrigins : true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
+}
+
+app.use(cors(corsOptions))
+// Ensure preflight requests always get CORS headers
+app.options('*', cors(corsOptions))
 app.use(express.json())
 
 // MongoDB connection

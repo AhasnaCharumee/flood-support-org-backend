@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --production
+# Install all dependencies (including dev, needed for ts-node runtime)
+RUN npm install
 
 # Copy the rest of the application code
 COPY . .

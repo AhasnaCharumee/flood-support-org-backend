@@ -15,7 +15,21 @@ import { initScheduledTasks } from './utils/scheduler'
 dotenv.config()
 
 const app = express()
-app.use(cors())
+// Restrict CORS to known frontends while allowing server-to-server calls without an origin
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean)
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      return callback(null, true)
+    }
+    return callback(new Error('Not allowed by CORS'))
+  },
+  credentials: true
+}))
 app.use(express.json())
 
 // MongoDB connection
